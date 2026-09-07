@@ -24,13 +24,19 @@ dir.create(file.path(root, "Figures"), recursive = TRUE, showWarnings = FALSE)
 
 run_python <- function(script, extra = character()) {
   message("Running ", script)
-  status <- system2(python, c(file.path(code_dir, script), paste0("--root=", root), extra))
+  status <- system2(
+    python,
+    c(shQuote(file.path(code_dir, script)), shQuote(paste0("--root=", root)), extra)
+  )
   if (!identical(status, 0L)) stop(script, " failed with status ", status)
 }
 
 run_r <- function(script, extra = character()) {
   message("Running ", script)
-  status <- system2(rscript, c(file.path(code_dir, script), paste0("--root=", root), extra))
+  status <- system2(
+    rscript,
+    c(shQuote(file.path(code_dir, script)), shQuote(paste0("--root=", root)), extra)
+  )
   if (!identical(status, 0L)) stop(script, " failed with status ", status)
 }
 
