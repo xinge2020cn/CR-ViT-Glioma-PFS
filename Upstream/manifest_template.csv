@@ -1,0 +1,1 @@
+patient_id,subtype,cohort,T1WI,T2WI,T2_FLAIR,CE_T1WI,tumor_mask,brain_mask,pfs_time_months,event

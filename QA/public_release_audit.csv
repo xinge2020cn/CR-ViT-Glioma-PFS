@@ -1,5 +1,6 @@
 check,status,detail
 Required analysis scripts are present,PASS,all present
+Required upstream scripts are present,PASS,all present
 R and Python source files contain no Han characters,PASS,none
 Bundled data omit generator metadata fields,PASS,none
 Public-release metadata files are present,PASS,"README, license status, and dependency lists"

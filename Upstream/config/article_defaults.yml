@@ -1,0 +1,115 @@
+project:
+  name: CR-ViT-Glioma-PFS
+  random_seed: 20260907
+  device: auto
+
+data:
+  manifest: inputs/manifest.csv
+  patient_id_column: patient_id
+  subtype_column: subtype
+  cohort_column: cohort
+  training_cohort: training
+  time_column: pfs_time_months
+  event_column: event
+  image_columns:
+    T1WI: T1WI
+    T2WI: T2WI
+    T2_FLAIR: T2_FLAIR
+    CE_T1WI: CE_T1WI
+  mask_column: tumor_mask
+  brain_mask_column: brain_mask
+
+mri_preprocessing:
+  reference_sequence: CE_T1WI
+  orientation: LPS
+  target_spacing_mm_xyz: [1.0, 1.0, 5.0]
+  target_size_voxels_xyz: [192, 192, 24]
+  registration:
+    transform: rigid_euler_3d
+    metric: mattes_mutual_information
+    metric_bins: 50
+    optimizer: gradient_descent
+    learning_rate: 1.0
+    iterations: 100
+    shrink_factors: [4, 2, 1]
+    smoothing_sigmas_mm: [2.0, 1.0, 0.0]
+  n4_bias_correction:
+    enabled: true
+    iterations: [50, 50, 30, 20]
+    convergence_threshold: 0.000001
+    fitting_levels: 4
+  intensity_normalization:
+    method: brain_mask_z_score
+    clip_after_normalization: [-5.0, 5.0]
+  tumor_core_expansion_mm: 5.0
+  image_interpolation: linear
+  mask_interpolation: nearest
+
+nnunet:
+  dataset_id: 501
+  dataset_name: GliomaTumorCore
+  configuration: 3d_fullres
+  trainer: nnUNetTrainer
+  folds: [0, 1, 2, 3, 4]
+  label_map:
+    background: 0
+    tumor_core: 1
+
+survival_model:
+  models: [3d_vit, 3d_resnet18]
+  input_array_order: CZYX
+  patch_size_xyz: [16, 16, 4]
+  embed_dim: 128
+  transformer_depth: 4
+  attention_heads: 4
+  mlp_ratio: 4.0
+  dropout: 0.1
+  stochastic_depth: 0.0
+  batch_size: 2
+  epochs: 100
+  learning_rate: 0.0001
+  weight_decay: 0.00001
+  validation_fraction: 0.2
+  early_stopping_patience: 15
+  gradient_clip_norm: 1.0
+  cox_tie_method: breslow
+  augmentation:
+    enabled: true
+    flip_probability: 0.5
+    intensity_jitter_probability: 0.2
+    intensity_jitter_scale: 0.05
+  score_output_name: risk_score
+
+attribution:
+  methods: [occlusion, deep_shap]
+  occlusion_block_size_xyz: [16, 16, 4]
+  occlusion_stride_xyz: [16, 16, 4]
+  occlusion_fill_value: 0.0
+  shap_background_cases: 16
+  shap_batch_size: 1
+  save_channel_maps: true
+  save_case_maps: true
+
+bulk_ssgsea:
+  expression_orientation: genes_by_samples
+  sample_id_column: sample_id
+  group_column: risk_group
+  min_genes_per_signature: 5
+  permutation_count: 1000
+  multiple_testing_method: benjamini_hochberg
+
+single_cell:
+  input_format: h5ad
+  patient_id_column: patient_id
+  risk_group_column: risk_group
+  min_genes_per_cell: 200
+  max_mitochondrial_percent: 20.0
+  min_cells_per_gene: 3
+  highly_variable_genes: 2000
+  pca_components: 50
+  neighbors: 15
+  leiden_resolution: 0.5
+  marker_test: wilcoxon
+  state_score_method: mean_z_scored_markers
+  ligand_receptor_score_method: geometric_mean_log_expression
+  run_cnv_if_available: true

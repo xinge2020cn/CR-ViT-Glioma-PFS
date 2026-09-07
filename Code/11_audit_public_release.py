@@ -26,6 +26,18 @@ REQUIRED_CODE = {
     "11_audit_public_release.py",
     "12_build_data_dictionary.py",
 }
+REQUIRED_UPSTREAM = {
+    "01_preprocess_mri.py",
+    "02_prepare_nnunet_dataset.py",
+    "03_train_nnunet.py",
+    "04_train_survival_models.py",
+    "05_fit_crvit_fusion.R",
+    "06_generate_attributions.py",
+    "07_run_bulk_ssgsea.py",
+    "08_run_single_cell_analysis.py",
+    "09_validate_upstream_configuration.py",
+    "io_utils.py",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -49,7 +61,13 @@ def main() -> int:
     missing = sorted(REQUIRED_CODE.difference(code_names))
     record("Required analysis scripts are present", not missing, ", ".join(missing) or "all present")
 
+    upstream_dir = root / "Upstream"
+    upstream_names = {path.name for path in upstream_dir.iterdir() if path.is_file()}
+    missing_upstream = sorted(REQUIRED_UPSTREAM.difference(upstream_names))
+    record("Required upstream scripts are present", not missing_upstream, ", ".join(missing_upstream) or "all present")
+
     code_files = list(code_dir.rglob("*.py")) + list(code_dir.rglob("*.R"))
+    code_files += list(upstream_dir.rglob("*.py")) + list(upstream_dir.rglob("*.R"))
     han_files = [str(path.relative_to(root)) for path in code_files if HAN.search(path.read_text(encoding="utf-8"))]
     record("R and Python source files contain no Han characters", not han_files, ", ".join(han_files) or "none")
 

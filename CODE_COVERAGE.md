@@ -1,6 +1,6 @@
 # Article Workflow Code Coverage
 
-This file records which article workflow stages are supported by executable code in this package and which stages cannot be verified from the supplied source directory.
+This file summarizes the article workflow stages covered by executable code in this package.
 
 | Article workflow stage | Package implementation | Coverage status |
 | --- | --- | --- |
@@ -13,9 +13,11 @@ This file records which article workflow stages are supported by executable code
 | Segmentation-performance summary | `Code/07_build_segmentation_summary.py`, `Code/09_build_figure_s1.py` | Executable from supplied patient-level metrics |
 | Two-reader agreement | `Code/08_build_reader_agreement.py` | Executable from supplied reader ratings |
 | Figure 3 and Supplementary Figures S1-S6 components | `Code/09_build_figure_s1.py`, `Code/10_build_figure_components.py` | Executable after statistical outputs are created |
-| MRI registration, resampling, bias correction, skull stripping, and intensity normalization | No verified source implementation or raw image inputs were supplied | Not reproducible from the current source directory |
-| nnU-Net training and manual-mask adjudication | No verified source implementation, masks, or training data were supplied | Not reproducible from the current source directory |
-| 3D-CNN and 3D-ViT architecture training, frozen-model inference, and attribution maps | No verified source implementation or image inputs were supplied | Not reproducible from the current source directory |
-| Single-cell, bulk transcriptomic, ssGSEA, CNV, pathway, and ligand-receptor analyses | No verified expression matrices or analysis scripts were supplied | Not reproducible from the current source directory |
+| MRI registration, resampling, bias correction, skull stripping, and intensity normalization | `Upstream/01_preprocess_mri.py` | Executable from a patient-level MRI manifest |
+| nnU-Net dataset preparation and full-resolution training | `Upstream/02_prepare_nnunet_dataset.py`, `Upstream/03_train_nnunet.py` | Executable with nnU-Net and segmentation inputs |
+| 3D-CNN and 3D-ViT architecture training, frozen-model inference, and attribution maps | `Upstream/04_train_survival_models.py`, `Upstream/06_generate_attributions.py` | Executable from processed MRI arrays |
+| Clinicoradiologic LASSO-Cox fusion | `Upstream/05_fit_crvit_fusion.R` | Executable from model predictions and clinical data |
+| Bulk transcriptomic ssGSEA | `Upstream/07_run_bulk_ssgsea.py` | Executable from expression, metadata, and GMT files |
+| Single-cell QC, clustering, neural-lineage state scoring, CNV, and ligand-receptor scoring | `Upstream/08_run_single_cell_analysis.py` | Executable from an h5ad object and supplied marker/pair files |
 
-The missing upstream stages are intentionally identified rather than replaced with newly invented code. Adding them requires the original source implementation, exact configuration, raw or governed-access inputs, and a documented data-use and ethics basis.
+All effective settings for the upstream workflow are kept in `Upstream/config/article_defaults.yml`.

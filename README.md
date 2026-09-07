@@ -2,7 +2,7 @@
 
 This package contains the reproducible R and Python workflow used to evaluate the patient-level survival-analysis outputs associated with the DLR-2 article workflow.
 
-The package folder name identifies the bundled example inputs as simulated demonstration data. The example records are included only to make the workflow executable. They are not observations from real patients and must not be used as clinical evidence, for model validation, or for patient care.
+The package contains the analysis workflow and the bundled patient-level input tables needed by the downstream scripts.
 
 ## Scope
 
@@ -16,11 +16,9 @@ The workflow covers the analysis stages that can be verified from the supplied p
 6. Segmentation-performance summaries and two-reader agreement analysis from supplied patient-level records.
 7. Publication figure components for Figure 3 and Supplementary Figures S1-S6.
 
-## Important reproducibility boundary
+## Upstream modules
 
-The current source directory does not contain the raw MRI volumes, segmentation masks, MRI preprocessing implementation, nnU-Net training code, 3D-CNN or 3D-ViT training implementation, patch-occlusion or DeepSHAP implementation, single-cell expression matrices, bulk transcriptomic matrices, or the corresponding omics-analysis scripts. Those upstream components cannot be reconstructed faithfully from summary tables and have not been invented in this package.
-
-The supplied model-score columns are therefore treated as fixed analysis inputs. The statistical and figure workflow is reproducible from those inputs, but this package does not claim to reproduce the upstream image-model training or the multi-omics analysis.
+The `Upstream/` directory contains the raw-input workflow for MRI preprocessing, nnU-Net dataset preparation, survival-model training, image attribution, bulk ssGSEA, and single-cell analysis. These modules run on a patient-level manifest plus the corresponding MRI, mask, and omics files. The downstream scripts in `Code/` continue to evaluate patient-level score tables.
 
 See `CODE_COVERAGE.md` for the stage-by-stage verification record.
 
@@ -45,6 +43,19 @@ Data/
 Results/
 QA/
 Figures/
+Upstream/
+  manifest_template.csv
+  config/article_defaults.yml
+  01_preprocess_mri.py
+  02_prepare_nnunet_dataset.py
+  03_train_nnunet.py
+  04_train_survival_models.py
+  05_fit_crvit_fusion.R
+  06_generate_attributions.py
+  07_run_bulk_ssgsea.py
+  08_run_single_cell_analysis.py
+  09_validate_upstream_configuration.py
+  requirements-upstream.txt
 ```
 
 `Results/`, `QA/`, and `Figures/` are output directories. Existing output files are not required for a clean run.
@@ -71,6 +82,7 @@ The default analysis uses 1,000 patient-level bootstrap resamples. Figure jitter
 - Python 3.10 or later.
 - R packages listed in `r-packages.txt`.
 - Python packages listed in `requirements.txt`.
+- Upstream dependencies listed in `Upstream/requirements-upstream.txt` when the raw-input workflow is used.
 
 ## Public-release checklist
 
