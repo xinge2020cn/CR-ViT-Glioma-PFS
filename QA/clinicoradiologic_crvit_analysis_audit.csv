@@ -1,8 +1,0 @@
-﻿"item","value"
-"patient_rows",1880
-"unique_patient_ids",1880
-"prediction_rows",1880
-"bootstrap_resamples",100
-"all_crvit_ph_global_p_gt_0.05",1
-"all_validation_conditional_ph_global_p_gt_0.05",1
-"postoperative_treatment_in_primary_model",0

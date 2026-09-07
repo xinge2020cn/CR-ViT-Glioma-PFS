@@ -14,3 +14,22 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
+
+# Local study inputs and generated outputs
+Data/
+Results/
+QA/
+Figures/
+Working/
+inputs/
+
+# Imaging, omics, and model artifacts
+*.nii
+*.nii.gz
+*.h5ad
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+*.rds

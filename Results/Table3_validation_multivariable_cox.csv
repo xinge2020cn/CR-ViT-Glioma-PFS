@@ -1,5 +1,0 @@
-﻿"population","subtype","n","events","adjusted_hr_per_training_sd_vit","ci_low","ci_high","p_value","ph_p_vit","ph_p_global","adjustment_variables","cohort_stratified"
-"Pooled validation cohorts","IDHmut-intact",299,121,1.8665693311871583,1.529909412854404,2.2773120021714925,7.742918885191155e-10,0.18894818413698353,0.16955607466481765,"who_grade; extent_of_resection; log_tumor_volume; enhancing_ord",TRUE
-"Pooled validation cohorts","IDHmut-codel",234,69,1.855884446269569,1.416430283262962,2.431681332010793,7.288564097073938e-6,0.7601411142054176,0.7964465955641592,"who_grade; extent_of_resection; log_tumor_volume; flair_ord",TRUE
-"Pooled validation cohorts","GBM",504,389,2.038285617922471,1.8062242308656553,2.3001619562142857,7.631834355585889e-31,0.33935312307528387,0.5537745370072508,"age; mgmt_promoter_methylation; extent_of_resection; necrotic_ord; ependymal_involvement",TRUE
-"GBM multi-omics subset","GBM",150,116,2.3389768036725584,1.8088054907344384,3.0245443836511994,9.232970334224654e-11,0.8238201192061303,0.6800298879240199,"age; mgmt_promoter_methylation; extent_of_resection; necrotic_ord; ependymal_involvement",FALSE

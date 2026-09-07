@@ -2,7 +2,7 @@
 
 This directory contains the executable upstream modules that are needed before the patient-level statistical workflow in `../Code/`. The modules follow the article workflow: four-sequence MRI preprocessing, tumor-core segmentation dataset preparation, subtype-specific 3D survival models, image attribution, bulk ssGSEA, and single-cell analysis.
 
-The package-level example tables remain unchanged. They are not image volumes or omics matrices and therefore cannot run these modules. To run the upstream workflow, prepare a private or governed input directory and create a manifest with one row per patient.
+To run the upstream workflow, prepare a private or governed input directory and create a manifest with one row per patient. No patient-level inputs are included in this repository.
 
 ## Unified parameter file
 
@@ -23,12 +23,12 @@ The four MRI and mask columns contain paths to NIfTI files or other formats supp
 Run commands from this directory's parent package:
 
 ```powershell
-python Upstream/07_validate_upstream_configuration.py --config Upstream/config/article_defaults.yml
+python Upstream/09_validate_upstream_configuration.py --config Upstream/config/article_defaults.yml
 python Upstream/01_preprocess_mri.py --config Upstream/config/article_defaults.yml --manifest inputs/manifest.csv --output-dir Working/preprocessed
 python Upstream/02_prepare_nnunet_dataset.py --config Upstream/config/article_defaults.yml --manifest inputs/manifest.csv --output-dir Working/Dataset501
 python Upstream/03_train_nnunet.py --config Upstream/config/article_defaults.yml --dataset-root Working/Dataset501
 python Upstream/04_train_survival_models.py --config Upstream/config/article_defaults.yml --manifest Working/preprocessed/processed_manifest.csv --output-dir Working/survival
-Rscript Upstream/05_fit_crvit_fusion.R --manifest Data/imaging_3center_patient_level.csv --prediction-dir Working/survival/predictions --output-dir Working/crvit
+Rscript Upstream/05_fit_crvit_fusion.R --manifest inputs/manifest.csv --prediction-dir Working/survival/predictions --output-dir Working/crvit
 python Upstream/06_generate_attributions.py --config Upstream/config/article_defaults.yml --manifest Working/preprocessed/processed_manifest.csv --checkpoint-dir Working/survival/checkpoints --output-dir Working/attributions
 python Upstream/07_run_bulk_ssgsea.py --config Upstream/config/article_defaults.yml --expression inputs/bulk_expression.csv --metadata inputs/bulk_metadata.csv --signatures inputs/signatures.gmt --output-dir Working/bulk_ssgsea
 python Upstream/08_run_single_cell_analysis.py --config Upstream/config/article_defaults.yml --input inputs/single_cell.h5ad --marker-sets inputs/neural_lineage_marker_sets.yml --output-dir Working/single_cell

@@ -1,8 +1,0 @@
-feature,feature_label,scale,agreement_metric,metric_symbol,n,observed_agreement,kappa,ci_low,ci_high,bootstrap_resamples
-tumor_location,Tumor location,Nominal,Cohen kappa,κ,1880,0.8276595744680851,0.78328615072841,0.7624022886020994,0.8043788163169265,2000
-enhancing_proportion,Enhancing proportion,Ordinal,Quadratic weighted Cohen kappa,κw,1880,0.7138297872340426,0.8476637225011956,0.8305738963496949,0.862766195833256,2000
-necrotic_proportion,Necrotic proportion,Ordinal,Quadratic weighted Cohen kappa,κw,1880,0.6734042553191489,0.8211356886386808,0.8033759677219618,0.8377087136258506,2000
-peritumoral_flair_extent,Peritumoral FLAIR extent,Ordinal,Quadratic weighted Cohen kappa,κw,1880,0.5909574468085106,0.7332923437658394,0.7113548126885901,0.7552185641870515,2000
-ependymal_involvement,Ependymal involvement,Nominal,Cohen kappa,κ,1880,0.8569148936170212,0.6880004935529644,0.6534034284054325,0.7219714622215397,2000
-deep_white_matter_invasion,Deep white matter invasion,Nominal,Cohen kappa,κ,1880,0.8069148936170213,0.6007441729851165,0.5638783016662704,0.637325251198555,2000
-enhancing_tumor_crossing_midline,Enhancing tumor crossing midline,Nominal,Cohen kappa,κ,1880,0.9106382978723404,0.7693548010188582,0.7355347065043008,0.8021834385159478,2000

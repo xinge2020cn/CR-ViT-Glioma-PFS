@@ -10,7 +10,7 @@ import pandas as pd
 
 
 HAN = re.compile(r"[\u3400-\u9fff]")
-FORBIDDEN_GENERATOR_FIELDS = {"outcome_generation_seed", "outcome_generation_scale", "outcome_generation_shape"}
+TEXT_SUFFIXES = {".csv", ".md", ".py", ".r", ".txt", ".yml", ".yaml"}
 REQUIRED_CODE = {
     "00_validate_inputs.py",
     "01_run_primary_analysis.R",
@@ -43,14 +43,13 @@ REQUIRED_UPSTREAM = {
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--audit-output", type=Path, default=None)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     root = args.root.resolve()
-    qa_dir = root / "QA"
-    qa_dir.mkdir(parents=True, exist_ok=True)
     checks: list[dict[str, str]] = []
 
     def record(check: str, passed: bool, detail: str) -> None:
@@ -66,26 +65,45 @@ def main() -> int:
     missing_upstream = sorted(REQUIRED_UPSTREAM.difference(upstream_names))
     record("Required upstream scripts are present", not missing_upstream, ", ".join(missing_upstream) or "all present")
 
-    code_files = list(code_dir.rglob("*.py")) + list(code_dir.rglob("*.R"))
-    code_files += list(upstream_dir.rglob("*.py")) + list(upstream_dir.rglob("*.R"))
-    han_files = [str(path.relative_to(root)) for path in code_files if HAN.search(path.read_text(encoding="utf-8"))]
-    record("R and Python source files contain no Han characters", not han_files, ", ".join(han_files) or "none")
+    text_files = [
+        path for path in root.rglob("*")
+        if path.is_file() and path.suffix.lower() in TEXT_SUFFIXES and ".git" not in path.relative_to(root).parts
+    ]
+    han_files = [str(path.relative_to(root)) for path in text_files if HAN.search(path.read_text(encoding="utf-8"))]
+    record("Public text files contain no Han characters", not han_files, ", ".join(han_files) or "none")
 
-    data_dir = root / "Data"
-    data_frames = []
-    for path in sorted(data_dir.glob("*.csv")):
-        frame = pd.read_csv(path, nrows=0)
-        data_frames.append((path.name, set(frame.columns)))
-    forbidden = sorted({field for _, columns in data_frames for field in columns if field in FORBIDDEN_GENERATOR_FIELDS})
-    record("Bundled data omit generator metadata fields", not forbidden, ", ".join(forbidden) or "none")
+    forbidden_directories = [root / name for name in ("Results", "QA", "Figures")]
+    present_directories = [str(path.relative_to(root)) for path in forbidden_directories if path.exists()]
+    record("Generated output directories are not bundled", not present_directories, ", ".join(present_directories) or "none")
 
-    required_docs = [root / "README.md", root / "LICENSE_PENDING.md", root / "requirements.txt", root / "r-packages.txt"]
-    record("Public-release metadata files are present", all(path.exists() for path in required_docs), "README, license status, and dependency lists")
+    patient_tables = [
+        path for path in root.rglob("*")
+        if path.is_file() and path.suffix.lower() in {".csv", ".tsv", ".xlsx", ".xls"}
+        and path.relative_to(root).as_posix() != "Upstream/manifest_template.csv"
+    ]
+    record(
+        "Patient-level tables are not bundled",
+        not patient_tables,
+        ", ".join(str(path.relative_to(root)) for path in patient_tables) or "none",
+    )
 
-    for directory in (root / "Results", root / "QA", root / "Figures"):
-        directory.mkdir(parents=True, exist_ok=True)
+    required_docs = [
+        root / "README.md",
+        root / "LICENSE_PENDING.md",
+        root / "requirements.txt",
+        root / "r-packages.txt",
+        root / "run_all.R",
+        root / "Upstream" / "manifest_template.csv",
+        root / "Upstream" / "config" / "article_defaults.yml",
+        root / "Upstream" / "requirements-upstream.txt",
+    ]
+    record("Public-release metadata files are present", all(path.exists() for path in required_docs), "README, license, workflow, configuration, and dependency files")
+
     output = pd.DataFrame(checks)
-    output.to_csv(qa_dir / "public_release_audit.csv", index=False)
+    if args.audit_output is not None:
+        audit_output = args.audit_output.resolve()
+        audit_output.parent.mkdir(parents=True, exist_ok=True)
+        output.to_csv(audit_output, index=False)
     print(output.to_string(index=False))
     return 0 if (output["status"] == "PASS").all() else 1
 

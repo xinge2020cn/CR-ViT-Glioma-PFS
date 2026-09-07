@@ -87,7 +87,7 @@ def main() -> int:
         "ratings": data_dir / "reader_ratings_long.csv",
     }
     for label, path in paths.items():
-        record(f"File exists: {label}", path.exists(), str(path))
+        record(f"File exists: {label}", path.exists(), str(path.relative_to(root)))
 
     if not all(path.exists() for path in paths.values()):
         output = pd.DataFrame(checks)
