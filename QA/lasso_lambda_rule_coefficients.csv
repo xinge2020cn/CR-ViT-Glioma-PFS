@@ -1,0 +1,35 @@
+﻿"subtype","type_measure","lambda_rule","model_matrix_column","predictor_group","coefficient"
+"IDHmut-intact","deviance","lambda.min","who_grade.L","who_grade",0.28255814538052426
+"IDHmut-intact","deviance","lambda.min","extent_of_resectionSubtotal resection","extent_of_resection",0.10682092337584045
+"IDHmut-intact","deviance","lambda.min","log_tumor_volume","log_tumor_volume",0.4484305730405421
+"IDHmut-intact","deviance","lambda.min","enhancing_ord","enhancing_ord",0.06268353526742951
+"IDHmut-intact","C","lambda.1se","log_tumor_volume","log_tumor_volume",0.1651445974239025
+"IDHmut-intact","C","lambda.min","who_grade.L","who_grade",0.067729548449175
+"IDHmut-intact","C","lambda.min","log_tumor_volume","log_tumor_volume",0.2950061055397247
+"IDHmut-codel","deviance","lambda.min","who_grade.L","who_grade",0.3571723444612449
+"IDHmut-codel","deviance","lambda.min","who_grade.Q","who_grade",-2.4131868624870734e-5
+"IDHmut-codel","deviance","lambda.min","extent_of_resectionSubtotal resection","extent_of_resection",0.2797898666720668
+"IDHmut-codel","deviance","lambda.min","log_tumor_volume","log_tumor_volume",0.0021146992563152744
+"IDHmut-codel","deviance","lambda.min","flair_ord","flair_ord",0.12310101266092423
+"IDHmut-codel","C","lambda.1se","who_grade.L","who_grade",0.1254264017435641
+"IDHmut-codel","C","lambda.1se","who_grade.Q","who_grade",-1.0837970792021032e-5
+"IDHmut-codel","C","lambda.1se","extent_of_resectionSubtotal resection","extent_of_resection",0.11318415052235002
+"IDHmut-codel","C","lambda.1se","flair_ord","flair_ord",0.040051958658714235
+"IDHmut-codel","C","lambda.min","who_grade.L","who_grade",0.1915903998073479
+"IDHmut-codel","C","lambda.min","who_grade.Q","who_grade",-1.774095371951067e-5
+"IDHmut-codel","C","lambda.min","extent_of_resectionSubtotal resection","extent_of_resection",0.1611311278653629
+"IDHmut-codel","C","lambda.min","flair_ord","flair_ord",0.0635323606104387
+"GBM","deviance","lambda.1se","age","age",0.006351408794264008
+"GBM","deviance","lambda.1se","necrotic_ord","necrotic_ord",0.03384128864038342
+"GBM","deviance","lambda.min","age","age",0.014769637745270204
+"GBM","deviance","lambda.min","mgmt_promoter_methylationUnmethylated","mgmt_promoter_methylation",0.2319277307200085
+"GBM","deviance","lambda.min","extent_of_resectionSubtotal resection","extent_of_resection",0.2003714814716959
+"GBM","deviance","lambda.min","necrotic_ord","necrotic_ord",0.15490977304005052
+"GBM","deviance","lambda.min","ependymal_involvementPresent","ependymal_involvement",0.013382154965842087
+"GBM","C","lambda.1se","age","age",0.007618357531733934
+"GBM","C","lambda.1se","mgmt_promoter_methylationUnmethylated","mgmt_promoter_methylation",0.01464979569126021
+"GBM","C","lambda.1se","necrotic_ord","necrotic_ord",0.048509158526716334
+"GBM","C","lambda.min","age","age",0.01424258968893441
+"GBM","C","lambda.min","mgmt_promoter_methylationUnmethylated","mgmt_promoter_methylation",0.21451083326069248
+"GBM","C","lambda.min","extent_of_resectionSubtotal resection","extent_of_resection",0.1831330775992965
+"GBM","C","lambda.min","necrotic_ord","necrotic_ord",0.14662352709452287

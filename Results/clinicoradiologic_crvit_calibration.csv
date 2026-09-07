@@ -1,0 +1,201 @@
+﻿"cohort","subtype","model","time_months","risk_quantile","n","predicted_event_probability","observed_event_probability"
+"Training cohort","IDHmut-intact","Clinicoradiologic",24,1,48,0.1494764530979857,0.13528138528138545
+"Training cohort","IDHmut-intact","Clinicoradiologic",24,2,48,0.2168958590807843,0.2603447991870049
+"Training cohort","IDHmut-intact","Clinicoradiologic",24,3,47,0.27539897854162987,0.2198632841741185
+"Training cohort","IDHmut-intact","Clinicoradiologic",24,4,47,0.34823818609593127,0.350766976894464
+"Training cohort","IDHmut-intact","Clinicoradiologic",24,5,47,0.5050990933659681,0.5427702996092055
+"Training cohort","IDHmut-intact","3D-CNN",24,1,48,0.13163275485019044,0.21934837341814106
+"Training cohort","IDHmut-intact","3D-CNN",24,2,48,0.22342842677104582,0.2317900246494089
+"Training cohort","IDHmut-intact","3D-CNN",24,3,47,0.29277128963077154,0.20016728527366834
+"Training cohort","IDHmut-intact","3D-CNN",24,4,47,0.3782400822938697,0.3698244193460586
+"Training cohort","IDHmut-intact","3D-CNN",24,5,47,0.5352683996333829,0.5469631740645636
+"Training cohort","IDHmut-intact","3D-ViT",24,1,48,0.12070891079005487,0.16666666666666685
+"Training cohort","IDHmut-intact","3D-ViT",24,2,48,0.19747604879686795,0.19154776451983913
+"Training cohort","IDHmut-intact","3D-ViT",24,3,47,0.2831481497195636,0.30057242945402707
+"Training cohort","IDHmut-intact","3D-ViT",24,4,47,0.38737373473802184,0.328050148893013
+"Training cohort","IDHmut-intact","3D-ViT",24,5,47,0.6143241213044908,0.6524561383861316
+"Training cohort","IDHmut-intact","CR-ViT",24,1,48,0.09481048259637594,0.1531119465329992
+"Training cohort","IDHmut-intact","CR-ViT",24,2,48,0.161692483418867,0.1351313125675463
+"Training cohort","IDHmut-intact","CR-ViT",24,3,47,0.24643885925275,0.18033877556451505
+"Training cohort","IDHmut-intact","CR-ViT",24,4,47,0.3794020611393212,0.42232500770891157
+"Training cohort","IDHmut-intact","CR-ViT",24,5,47,0.6735379119730619,0.7362396344076855
+"Training cohort","IDHmut-codel","Clinicoradiologic",24,1,38,0.08803599165602405,0.08506944444444442
+"Training cohort","IDHmut-codel","Clinicoradiologic",24,2,38,0.1463653199620049,0.08995528035775713
+"Training cohort","IDHmut-codel","Clinicoradiologic",24,3,38,0.20255927470027874,0.19071873231465752
+"Training cohort","IDHmut-codel","Clinicoradiologic",24,4,38,0.26188084602853756,0.3336902778738735
+"Training cohort","IDHmut-codel","Clinicoradiologic",24,5,37,0.40063898174429957,0.4028308822524619
+"Training cohort","IDHmut-codel","3D-CNN",24,1,38,0.10003676951937962,0.18421052631578927
+"Training cohort","IDHmut-codel","3D-CNN",24,2,38,0.15854888984178991,0.0831918505942274
+"Training cohort","IDHmut-codel","3D-CNN",24,3,38,0.2168046006453849,0.17700538607645078
+"Training cohort","IDHmut-codel","3D-CNN",24,4,38,0.27415697232376934,0.2351028433151845
+"Training cohort","IDHmut-codel","3D-CNN",24,5,37,0.4140707434140067,0.4596736655405408
+"Training cohort","IDHmut-codel","3D-ViT",24,1,38,0.07547980084222779,0.10526315789473673
+"Training cohort","IDHmut-codel","3D-ViT",24,2,38,0.12849621119486104,0.1083591331269349
+"Training cohort","IDHmut-codel","3D-ViT",24,3,38,0.20753138745114164,0.2569659442724458
+"Training cohort","IDHmut-codel","3D-ViT",24,4,38,0.2862363419614587,0.25687193692733856
+"Training cohort","IDHmut-codel","3D-ViT",24,5,37,0.5198385735374644,0.4226130724986559
+"Training cohort","IDHmut-codel","CR-ViT",24,1,38,0.040198845713859795,0.02777777777777779
+"Training cohort","IDHmut-codel","CR-ViT",24,2,38,0.09759570122960287,0.08049535603715163
+"Training cohort","IDHmut-codel","CR-ViT",24,3,38,0.18070381807825728,0.17268661850705191
+"Training cohort","IDHmut-codel","CR-ViT",24,4,38,0.29314347033499205,0.36615497076023384
+"Training cohort","IDHmut-codel","CR-ViT",24,5,37,0.5756746589746696,0.5390342635534944
+"Training cohort","GBM","Clinicoradiologic",12,1,84,0.4101911081013119,0.38575396287765873
+"Training cohort","GBM","Clinicoradiologic",12,2,84,0.5417801697774923,0.5705259229131963
+"Training cohort","GBM","Clinicoradiologic",12,3,83,0.6252664804069976,0.6258443132476675
+"Training cohort","GBM","Clinicoradiologic",12,4,83,0.7154596979490774,0.7411396248122464
+"Training cohort","GBM","Clinicoradiologic",12,5,83,0.8283530060154696,0.7895676272340826
+"Training cohort","GBM","3D-CNN",12,1,84,0.3972067620267107,0.3809523809523808
+"Training cohort","GBM","3D-CNN",12,2,84,0.550971709387677,0.5387783115991766
+"Training cohort","GBM","3D-CNN",12,3,83,0.6289303064249895,0.650572600794541
+"Training cohort","GBM","3D-CNN",12,4,83,0.7195722125853566,0.7328866013504565
+"Training cohort","GBM","3D-CNN",12,5,83,0.8311232918932723,0.8255068203095608
+"Training cohort","GBM","3D-ViT",12,1,84,0.29575204533071975,0.2632850241545891
+"Training cohort","GBM","3D-ViT",12,2,84,0.5222042732986913,0.5485040169914118
+"Training cohort","GBM","3D-ViT",12,3,83,0.6644305818943842,0.664578313253012
+"Training cohort","GBM","3D-ViT",12,4,83,0.7683716691784096,0.7469917857813804
+"Training cohort","GBM","3D-ViT",12,5,83,0.9116505960590826,0.9294521454350984
+"Training cohort","GBM","CR-ViT",12,1,84,0.2308621106769604,0.25301195478191263
+"Training cohort","GBM","CR-ViT",12,2,84,0.4632019093369054,0.4880174291938999
+"Training cohort","GBM","CR-ViT",12,3,83,0.6532551464596679,0.6284954005210026
+"Training cohort","GBM","CR-ViT",12,4,83,0.8270653124080768,0.8290399845005365
+"Training cohort","GBM","CR-ViT",12,5,83,0.9685115482210148,0.9589074309661004
+"Temporal validation cohort","IDHmut-intact","Clinicoradiologic",24,1,21,0.15666934324244472,0.23809523809523836
+"Temporal validation cohort","IDHmut-intact","Clinicoradiologic",24,2,21,0.21365087184333664,0.36363636363636365
+"Temporal validation cohort","IDHmut-intact","Clinicoradiologic",24,3,21,0.279947646374397,0.5198856870683496
+"Temporal validation cohort","IDHmut-intact","Clinicoradiologic",24,4,20,0.3594165794307782,0.4583333333333335
+"Temporal validation cohort","IDHmut-intact","Clinicoradiologic",24,5,20,0.4631890651631335,0.4843333333333334
+"Temporal validation cohort","IDHmut-intact","3D-CNN",24,1,21,0.16877913493703514,0.29841269841269846
+"Temporal validation cohort","IDHmut-intact","3D-CNN",24,2,21,0.25957597294531903,0.227008547008547
+"Temporal validation cohort","IDHmut-intact","3D-CNN",24,3,21,0.3122091982004228,0.3538461538461539
+"Temporal validation cohort","IDHmut-intact","3D-CNN",24,4,20,0.3780721584878727,0.4732893157262906
+"Temporal validation cohort","IDHmut-intact","3D-CNN",24,5,20,0.5685913819687786,0.6711309523809524
+"Temporal validation cohort","IDHmut-intact","3D-ViT",24,1,21,0.14321968065496296,0.24603174603174605
+"Temporal validation cohort","IDHmut-intact","3D-ViT",24,2,21,0.2226412983962967,0.2470588235294119
+"Temporal validation cohort","IDHmut-intact","3D-ViT",24,3,21,0.31167396656939655,0.32330827067669166
+"Temporal validation cohort","IDHmut-intact","3D-ViT",24,4,20,0.4096914033451357,0.524
+"Temporal validation cohort","IDHmut-intact","3D-ViT",24,5,20,0.653504774955943,0.8615384615384616
+"Temporal validation cohort","IDHmut-intact","CR-ViT",24,1,21,0.09846642228328246,0.19327731092436995
+"Temporal validation cohort","IDHmut-intact","CR-ViT",24,2,21,0.18581714043784744,0.3035714285714287
+"Temporal validation cohort","IDHmut-intact","CR-ViT",24,3,21,0.2766224368917588,0.2923485183547103
+"Temporal validation cohort","IDHmut-intact","CR-ViT",24,4,20,0.4213096835480781,0.5541795665634677
+"Temporal validation cohort","IDHmut-intact","CR-ViT",24,5,20,0.6888277147615158,0.826923076923077
+"Temporal validation cohort","IDHmut-codel","Clinicoradiologic",24,1,17,0.07863289380696521,0.1428571428571428
+"Temporal validation cohort","IDHmut-codel","Clinicoradiologic",24,2,17,0.13547402804496342,0.3121693121693123
+"Temporal validation cohort","IDHmut-codel","Clinicoradiologic",24,3,17,0.18958718271186242,0.11764705882352944
+"Temporal validation cohort","IDHmut-codel","Clinicoradiologic",24,4,17,0.2576298123115795,0.32291666666666674
+"Temporal validation cohort","IDHmut-codel","Clinicoradiologic",24,5,16,0.4525808756969991,0.25
+"Temporal validation cohort","IDHmut-codel","3D-CNN",24,1,17,0.10642210510859958,0.11764705882352944
+"Temporal validation cohort","IDHmut-codel","3D-CNN",24,2,17,0.15327800231486996,0.05882352941176472
+"Temporal validation cohort","IDHmut-codel","3D-CNN",24,3,17,0.19728133288025532,0.19887955182072836
+"Temporal validation cohort","IDHmut-codel","3D-CNN",24,4,17,0.2498869516929464,0.3158371040723982
+"Temporal validation cohort","IDHmut-codel","3D-CNN",24,5,16,0.39807397018422663,0.45174825174825184
+"Temporal validation cohort","IDHmut-codel","3D-ViT",24,1,17,0.0790973000029659,0.05882352941176472
+"Temporal validation cohort","IDHmut-codel","3D-ViT",24,2,17,0.12159630121172128,0.12605042016806722
+"Temporal validation cohort","IDHmut-codel","3D-ViT",24,3,17,0.20242588218423344,0.18552036199095023
+"Temporal validation cohort","IDHmut-codel","3D-ViT",24,4,17,0.2911587180638156,0.26285479226655695
+"Temporal validation cohort","IDHmut-codel","3D-ViT",24,5,16,0.49712209901735915,0.5825602968460111
+"Temporal validation cohort","IDHmut-codel","CR-ViT",24,1,17,0.03658644208488459,0.05882352941176472
+"Temporal validation cohort","IDHmut-codel","CR-ViT",24,2,17,0.08058735190462474,0.2102564102564103
+"Temporal validation cohort","IDHmut-codel","CR-ViT",24,3,17,0.14006552592627147,0.19887955182072836
+"Temporal validation cohort","IDHmut-codel","CR-ViT",24,4,17,0.2534777490724933,0.24894957983193278
+"Temporal validation cohort","IDHmut-codel","CR-ViT",24,5,16,0.7248098889823772,0.45211038961038963
+"Temporal validation cohort","GBM","Clinicoradiologic",12,1,35,0.4364331594795874,0.2941176470588236
+"Temporal validation cohort","GBM","Clinicoradiologic",12,2,35,0.5651850380035237,0.7142857142857144
+"Temporal validation cohort","GBM","Clinicoradiologic",12,3,35,0.6290250075367176,0.5750000000000002
+"Temporal validation cohort","GBM","Clinicoradiologic",12,4,35,0.7145627124419096,0.6849266022198353
+"Temporal validation cohort","GBM","Clinicoradiologic",12,5,35,0.8205228987698251,0.8606802721088436
+"Temporal validation cohort","GBM","3D-CNN",12,1,35,0.3810962055805582,0.5462184873949582
+"Temporal validation cohort","GBM","3D-CNN",12,2,35,0.5188720238532272,0.37990430622009586
+"Temporal validation cohort","GBM","3D-CNN",12,3,35,0.6082149913707343,0.6331668331668332
+"Temporal validation cohort","GBM","3D-CNN",12,4,35,0.6987288398687256,0.7142857142857144
+"Temporal validation cohort","GBM","3D-CNN",12,5,35,0.8258849458392848,0.8476190476190477
+"Temporal validation cohort","GBM","3D-ViT",12,1,35,0.3134764501492008,0.34285714285714297
+"Temporal validation cohort","GBM","3D-ViT",12,2,35,0.5039675559135228,0.5519274376417235
+"Temporal validation cohort","GBM","3D-ViT",12,3,35,0.6390532997939302,0.5880769230769232
+"Temporal validation cohort","GBM","3D-ViT",12,4,35,0.7409180943388453,0.744
+"Temporal validation cohort","GBM","3D-ViT",12,5,35,0.8969744885719727,0.9071428571428571
+"Temporal validation cohort","GBM","CR-ViT",12,1,35,0.2396252727661704,0.2868571428571429
+"Temporal validation cohort","GBM","CR-ViT",12,2,35,0.4672327681933359,0.4132427843803056
+"Temporal validation cohort","GBM","CR-ViT",12,3,35,0.642062395107806,0.7032967032967035
+"Temporal validation cohort","GBM","CR-ViT",12,4,35,0.8054252969694093,0.8010204081632655
+"Temporal validation cohort","GBM","CR-ViT",12,5,35,0.9561927009692517,0.9380952380952381
+"Spatial validation cohort","IDHmut-intact","Clinicoradiologic",24,1,40,0.1599415508737852,0.18161669829222016
+"Spatial validation cohort","IDHmut-intact","Clinicoradiologic",24,2,39,0.22235479635476255,0.197506441746073
+"Spatial validation cohort","IDHmut-intact","Clinicoradiologic",24,3,39,0.2764039327241982,0.2780400340370357
+"Spatial validation cohort","IDHmut-intact","Clinicoradiologic",24,4,39,0.34702061355458597,0.3233618233618235
+"Spatial validation cohort","IDHmut-intact","Clinicoradiologic",24,5,39,0.4845433979802771,0.400797771674253
+"Spatial validation cohort","IDHmut-intact","3D-CNN",24,1,40,0.1358059560681122,0.19062500000000004
+"Spatial validation cohort","IDHmut-intact","3D-CNN",24,2,39,0.21649810936773461,0.21562085543766574
+"Spatial validation cohort","IDHmut-intact","3D-CNN",24,3,39,0.2880122979576612,0.2485539152205819
+"Spatial validation cohort","IDHmut-intact","3D-CNN",24,4,39,0.3731567414916578,0.2726017943409247
+"Spatial validation cohort","IDHmut-intact","3D-CNN",24,5,39,0.566930454539898,0.5149842129969422
+"Spatial validation cohort","IDHmut-intact","3D-ViT",24,1,40,0.11451968767314531,0.17500000000000004
+"Spatial validation cohort","IDHmut-intact","3D-ViT",24,2,39,0.19988464643821757,0.1087801087801088
+"Spatial validation cohort","IDHmut-intact","3D-ViT",24,3,39,0.29932063002820647,0.29328247510065686
+"Spatial validation cohort","IDHmut-intact","3D-ViT",24,4,39,0.42280586151094063,0.3123703000246212
+"Spatial validation cohort","IDHmut-intact","3D-ViT",24,5,39,0.6438990171552382,0.5527656876176174
+"Spatial validation cohort","IDHmut-intact","CR-ViT",24,1,40,0.08496759104932956,0.13142857142857145
+"Spatial validation cohort","IDHmut-intact","CR-ViT",24,2,39,0.17505464937212042,0.20587225274725274
+"Spatial validation cohort","IDHmut-intact","CR-ViT",24,3,39,0.2900966480097369,0.09717868338557989
+"Spatial validation cohort","IDHmut-intact","CR-ViT",24,4,39,0.39323008876480137,0.467940952124557
+"Spatial validation cohort","IDHmut-intact","CR-ViT",24,5,39,0.662022992216853,0.5577966158330685
+"Spatial validation cohort","IDHmut-codel","Clinicoradiologic",24,1,30,0.08295971327691085,0.1447272727272727
+"Spatial validation cohort","IDHmut-codel","Clinicoradiologic",24,2,30,0.1255424801703122,0.11066688877783326
+"Spatial validation cohort","IDHmut-codel","Clinicoradiologic",24,3,30,0.18198056521656905,0.2753623188405797
+"Spatial validation cohort","IDHmut-codel","Clinicoradiologic",24,4,30,0.26163476990509166,0.3247223364870424
+"Spatial validation cohort","IDHmut-codel","Clinicoradiologic",24,5,30,0.44333395332432946,0.3617669208619433
+"Spatial validation cohort","IDHmut-codel","3D-CNN",24,1,30,0.11093384948729633,0.1694444444444445
+"Spatial validation cohort","IDHmut-codel","3D-CNN",24,2,30,0.1610373748614601,0.14621212121212113
+"Spatial validation cohort","IDHmut-codel","3D-CNN",24,3,30,0.2214284784227511,0.27944862155388484
+"Spatial validation cohort","IDHmut-codel","3D-CNN",24,4,30,0.28531314493730187,0.27939799331103665
+"Spatial validation cohort","IDHmut-codel","3D-CNN",24,5,30,0.4134029780804952,0.3766464646464647
+"Spatial validation cohort","IDHmut-codel","3D-ViT",24,1,30,0.08190445060656251,0.10256410256410253
+"Spatial validation cohort","IDHmut-codel","3D-ViT",24,2,30,0.14065202507903612,0.17356521739130437
+"Spatial validation cohort","IDHmut-codel","3D-ViT",24,3,30,0.21042898429043394,0.20719696969696977
+"Spatial validation cohort","IDHmut-codel","3D-ViT",24,4,30,0.3040835547737825,0.2960934946060805
+"Spatial validation cohort","IDHmut-codel","3D-ViT",24,5,30,0.539079921815111,0.5061252522987216
+"Spatial validation cohort","IDHmut-codel","CR-ViT",24,1,30,0.03833690912160184,0.06913580246913587
+"Spatial validation cohort","IDHmut-codel","CR-ViT",24,2,30,0.10307644072249955,0.13333333333333341
+"Spatial validation cohort","IDHmut-codel","CR-ViT",24,3,30,0.1618766497842109,0.25842424242424245
+"Spatial validation cohort","IDHmut-codel","CR-ViT",24,4,30,0.2586768755659171,0.2662661881728816
+"Spatial validation cohort","IDHmut-codel","CR-ViT",24,5,30,0.7095501559056364,0.5526315789473685
+"Spatial validation cohort","GBM","Clinicoradiologic",12,1,66,0.4073083703604986,0.34228825019522713
+"Spatial validation cohort","GBM","Clinicoradiologic",12,2,66,0.5429140571865585,0.3998366203757733
+"Spatial validation cohort","GBM","Clinicoradiologic",12,3,66,0.6365677000539582,0.5382369146005512
+"Spatial validation cohort","GBM","Clinicoradiologic",12,4,66,0.7314117529513247,0.7328843995510661
+"Spatial validation cohort","GBM","Clinicoradiologic",12,5,65,0.8428863667437915,0.7000000000000002
+"Spatial validation cohort","GBM","3D-CNN",12,1,66,0.3631940032018982,0.34883720930232565
+"Spatial validation cohort","GBM","3D-CNN",12,2,66,0.5144180802708072,0.5226453993055554
+"Spatial validation cohort","GBM","3D-CNN",12,3,66,0.6293354028521044,0.47611111111111126
+"Spatial validation cohort","GBM","3D-CNN",12,4,66,0.719822084399665,0.6223075695058453
+"Spatial validation cohort","GBM","3D-CNN",12,5,65,0.8350232491589383,0.753463927376971
+"Spatial validation cohort","GBM","3D-ViT",12,1,66,0.2791932391945348,0.2581818181818184
+"Spatial validation cohort","GBM","3D-ViT",12,2,66,0.4867505849959523,0.47818958499468356
+"Spatial validation cohort","GBM","3D-ViT",12,3,66,0.6401596884481079,0.5128674231689891
+"Spatial validation cohort","GBM","3D-ViT",12,4,66,0.7536650878611013,0.6666666666666665
+"Spatial validation cohort","GBM","3D-ViT",12,5,65,0.9086133859467319,0.8034353034353037
+"Spatial validation cohort","GBM","CR-ViT",12,1,66,0.21787180990126984,0.2443617763310859
+"Spatial validation cohort","GBM","CR-ViT",12,2,66,0.43579318736743133,0.39912995395865347
+"Spatial validation cohort","GBM","CR-ViT",12,3,66,0.6331501730348065,0.45135159326888685
+"Spatial validation cohort","GBM","CR-ViT",12,4,66,0.8250836307602021,0.769366391184573
+"Spatial validation cohort","GBM","CR-ViT",12,5,65,0.9651643688507012,0.8636686390532545
+"GBM multi-omics subset","GBM","Clinicoradiologic",12,1,30,0.43116375591688144,0.2758620689655171
+"GBM multi-omics subset","GBM","Clinicoradiologic",12,2,30,0.565941163590857,0.7
+"GBM multi-omics subset","GBM","Clinicoradiologic",12,3,30,0.6252037342386895,0.5333333333333333
+"GBM multi-omics subset","GBM","Clinicoradiologic",12,4,30,0.713187565282882,0.6635416666666667
+"GBM multi-omics subset","GBM","Clinicoradiologic",12,5,30,0.8179721811749427,0.8476190476190476
+"GBM multi-omics subset","GBM","3D-CNN",12,1,30,0.36891891265023646,0.5041666666666667
+"GBM multi-omics subset","GBM","3D-CNN",12,2,30,0.5044990971254862,0.43923611111111116
+"GBM multi-omics subset","GBM","3D-CNN",12,3,30,0.5971097211866038,0.5938461538461538
+"GBM multi-omics subset","GBM","3D-CNN",12,4,30,0.6908478610149698,0.6444444444444444
+"GBM multi-omics subset","GBM","3D-CNN",12,5,30,0.8271406523033892,0.8555555555555555
+"GBM multi-omics subset","GBM","3D-ViT",12,1,30,0.302810364235874,0.33333333333333337
+"GBM multi-omics subset","GBM","3D-ViT",12,2,30,0.48467504914462667,0.5423076923076923
+"GBM multi-omics subset","GBM","3D-ViT",12,3,30,0.6283528520689042,0.577922077922078
+"GBM multi-omics subset","GBM","3D-ViT",12,4,30,0.7281620617007708,0.706
+"GBM multi-omics subset","GBM","3D-ViT",12,5,30,0.8884719340744236,0.8857142857142857
+"GBM multi-omics subset","GBM","CR-ViT",12,1,30,0.22708093957051445,0.2681818181818182
+"GBM multi-omics subset","GBM","CR-ViT",12,2,30,0.44912663799825203,0.41437908496732034
+"GBM multi-omics subset","GBM","CR-ViT",12,3,30,0.6235276961576679,0.641025641025641
+"GBM multi-omics subset","GBM","CR-ViT",12,4,30,0.7808944376865619,0.7954545454545454
+"GBM multi-omics subset","GBM","CR-ViT",12,5,30,0.9531256649193658,0.925

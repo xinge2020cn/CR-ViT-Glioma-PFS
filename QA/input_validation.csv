@@ -1,0 +1,21 @@
+check,status,detail
+File exists: main,PASS,C:\Users\Admin\Desktop\DLR-2\Public_Analysis_Code_Simulated_Data\Data\imaging_3center_patient_level.csv
+File exists: subset,PASS,C:\Users\Admin\Desktop\DLR-2\Public_Analysis_Code_Simulated_Data\Data\center1_gbm_multiomics_subset_patient_level.csv
+File exists: segmentation,PASS,C:\Users\Admin\Desktop\DLR-2\Public_Analysis_Code_Simulated_Data\Data\segmentation_metrics_patient_level.csv
+File exists: ratings,PASS,C:\Users\Admin\Desktop\DLR-2\Public_Analysis_Code_Simulated_Data\Data\reader_ratings_long.csv
+Columns: main patient table,PASS,main patient table: required columns present
+Columns: multi-omics subset table,PASS,multi-omics subset table: required columns present
+Columns: segmentation table,PASS,segmentation table: required columns present
+Columns: reader-rating table,PASS,reader-rating table: required columns present
+Main patient identifiers are unique,PASS,rows=1880
+Subset identifiers are unique,PASS,rows=150
+Multi-omics subset is nested in the main table,PASS,"subset=150, overlap=150"
+Required numeric fields are numeric,PASS,"age, KPS, volume, and PFS time"
+Event indicator is binary,PASS,allowed values: 0 and 1
+PFS times are positive,PASS,pfs_time_months > 0
+Required main-table fields are complete,PASS,no missing values in required columns
+Multi-omics subset is GBM-only,PASS,subtype == GBM
+Segmentation identifiers are unique,PASS,rows=1880
+Segmentation metrics are numeric,PASS,Dice and HD95
+Reader-rating keys are unique,PASS,one row per patient and feature
+Analysis code contains no Han characters,PASS,none
