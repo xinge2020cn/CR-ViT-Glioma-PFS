@@ -28,7 +28,7 @@ revision_root <- normalizePath(
   winslash = "/", mustWork = FALSE
 )
 bootstrap_n <- as.integer(get_arg("--bootstrap", "1000"))
-seed <- as.integer(get_arg("--seed", "20260901"))
+seed <- as.integer(get_arg("--seed", "2026"))
 workers <- as.integer(get_arg("--workers", "3"))
 times <- c(6, 12, 18, 24, 30, 36)
 future::plan(future::multisession, workers = workers)

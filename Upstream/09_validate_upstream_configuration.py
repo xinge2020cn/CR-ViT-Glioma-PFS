@@ -30,6 +30,8 @@ def main() -> int:
     missing_sections = [section for section in required_sections if section not in config]
     if missing_sections:
         raise SystemExit(f"Missing configuration sections: {', '.join(missing_sections)}")
+    if int(config["project"]["random_seed"]) != 2026:
+        raise SystemExit("The unified project random seed must be 2026.")
     mri = config["mri_preprocessing"]
     target = [int(value) for value in mri["target_size_voxels_xyz"]]
     patch = [int(value) for value in config["survival_model"]["patch_size_xyz"]]

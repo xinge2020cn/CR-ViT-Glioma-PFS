@@ -47,7 +47,7 @@ run_r(
   c(
     paste0("--bootstrap=", get_arg("--bootstrap", "1000")),
     paste0("--workers=", get_arg("--workers", "3")),
-    paste0("--seed=", get_arg("--seed", "20260901"))
+    paste0("--seed=", get_arg("--seed", "2026"))
   )
 )
 for (script in c(
@@ -57,11 +57,11 @@ for (script in c(
   "05_build_multivariable_cox_results.R",
   "06_build_km_statistics.R"
 )) {
-  run_r(script, if (identical(script, "04_audit_lasso_selection.R")) paste0("--seed=", get_arg("--seed", "20260901")) else character())
+  run_r(script, if (identical(script, "04_audit_lasso_selection.R")) paste0("--seed=", get_arg("--seed", "2026")) else character())
 }
 
-run_python("07_build_segmentation_summary.py", c("--bootstrap=2000", "--seed=20260903"))
-run_python("08_build_reader_agreement.py", c("--bootstrap=2000", "--seed=20260904"))
+run_python("07_build_segmentation_summary.py", c("--bootstrap=2000", "--seed=2026"))
+run_python("08_build_reader_agreement.py", c("--bootstrap=2000", "--seed=2026"))
 run_python("09_build_figure_s1.py")
 run_python("10_build_figure_components.py")
 run_python("12_build_data_dictionary.py")

@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--bootstrap", type=int, default=2000)
-    parser.add_argument("--seed", type=int, default=20260903)
+    parser.add_argument("--seed", type=int, default=2026)
     return parser.parse_args()
 
 

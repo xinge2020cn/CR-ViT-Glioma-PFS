@@ -32,7 +32,7 @@ def orient(image, orientation: str, sitk):
     return sitk.DICOMOrient(image, orientation)
 
 
-def register_rigid(fixed, moving, registration_cfg: dict, sitk):
+def register_rigid(fixed, moving, registration_cfg: dict, sitk, random_seed: int):
     fixed_float = sitk.Cast(fixed, sitk.sitkFloat32)
     moving_float = sitk.Cast(moving, sitk.sitkFloat32)
     initial = sitk.CenteredTransformInitializer(
@@ -44,7 +44,7 @@ def register_rigid(fixed, moving, registration_cfg: dict, sitk):
     method = sitk.ImageRegistrationMethod()
     method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=int(registration_cfg["metric_bins"]))
     method.SetMetricSamplingStrategy(method.RANDOM)
-    method.SetMetricSamplingPercentage(0.2, seed=17)
+    method.SetMetricSamplingPercentage(0.2, seed=random_seed)
     method.SetInterpolator(sitk.sitkLinear)
     method.SetOptimizerAsGradientDescent(
         learningRate=float(registration_cfg["learning_rate"]),
@@ -179,7 +179,7 @@ def process_case(row: pd.Series, config: dict, output_dir: Path, sitk, manifest_
     aligned = {}
     for sequence, image in images.items():
         aligned[sequence] = image if sequence == reference_sequence else register_rigid(
-            reference, image, registration_cfg, sitk
+            reference, image, registration_cfg, sitk, int(config["project"]["random_seed"])
         )
     tumor_mask = orient(read_image(input_path(row[data_cfg["mask_column"]]), sitk), pre_cfg["orientation"], sitk)
     brain_mask = orient(read_image(input_path(row[data_cfg["brain_mask_column"]]), sitk), pre_cfg["orientation"], sitk)

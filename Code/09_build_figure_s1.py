@@ -11,7 +11,7 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SEED = 20260902
+SEED = 2026
 COHORTS = ["Training cohort", "Temporal validation cohort", "Spatial validation cohort"]
 SHORT = ["Training", "Temporal\nvalidation", "Spatial\nvalidation"]
 COLORS = ["#274D6B", "#51708A", "#7890A3"]

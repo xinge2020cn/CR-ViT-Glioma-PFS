@@ -1,6 +1,6 @@
 project:
   name: CR-ViT-Glioma-PFS
-  random_seed: 20260907
+  random_seed: 2026
   device: auto
 
 data:

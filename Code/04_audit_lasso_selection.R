@@ -18,7 +18,7 @@ script_dir <- if (length(script_arg)) {
 }
 default_root <- normalizePath(file.path(script_dir, ".."), winslash = "/", mustWork = FALSE)
 root <- normalizePath(get_arg("--root", default_root), winslash = "/", mustWork = FALSE)
-seed <- as.integer(get_arg("--seed", "20260901"))
+seed <- as.integer(get_arg("--seed", "2026"))
 dir.create(file.path(root, "QA"), recursive = TRUE, showWarnings = FALSE)
 
 dat <- read_csv(file.path(root, "Data", "imaging_3center_patient_level.csv"), show_col_types = FALSE) %>%
