@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import math
 import sys
 from pathlib import Path
@@ -158,7 +159,7 @@ def crop_and_resize(images, mask, target_size_xyz: list[int], sitk):
         0,
         sitk.sitkUInt8,
     )
-    return resized_images, resized_mask, output_spacing
+    return resized_images, resized_mask, output_spacing, index, size
 
 
 def process_case(row: pd.Series, config: dict, output_dir: Path, sitk, manifest_dir: Path) -> str:
@@ -197,7 +198,7 @@ def process_case(row: pd.Series, config: dict, output_dir: Path, sitk, manifest_
         for image in resampled_images
     ]
     expanded = expand_mask(resampled_tumor, float(pre_cfg["tumor_core_expansion_mm"]), sitk)
-    resized_images, resized_mask, spacing = crop_and_resize(
+    resized_images, resized_mask, spacing, crop_index, crop_size = crop_and_resize(
         normalized,
         expanded,
         [int(x) for x in pre_cfg["target_size_voxels_xyz"]],
@@ -206,14 +207,31 @@ def process_case(row: pd.Series, config: dict, output_dir: Path, sitk, manifest_
     arrays = [sitk.GetArrayFromImage(image).astype(np.float32) for image in resized_images]
     image_array = np.stack(arrays, axis=0)
     mask_array = (sitk.GetArrayFromImage(resized_mask) > 0).astype(np.uint8)
+    # The expanded region defines the crop, not the anatomical tumor core.
+    # Map the unexpanded core onto exactly the same grid for slice selection.
+    resized_core = resample_to_reference(
+        sitk.Cast(resampled_tumor > 0, sitk.sitkUInt8),
+        resized_images[0], sitk.sitkNearestNeighbor, sitk,
+    )
+    core_array = (sitk.GetArrayFromImage(resized_core) > 0).astype(np.uint8)
+    if not np.any(core_array):
+        raise ValueError("The tumor core is empty on the resized input grid.")
     patient_id = str(row[data_cfg["patient_id_column"]])
     safe_id = "".join(character if character.isalnum() or character in "-_" else "_" for character in patient_id)
     output_path = output_dir / f"{safe_id}.npz"
     np.savez_compressed(
         output_path,
         image=image_array,
-        tumor_mask=mask_array,
+        tumor_mask=core_array,
+        tumor_core_mask=core_array,
+        expanded_crop_mask=mask_array,
         spacing_xyz=np.asarray(spacing, dtype=np.float32),
+        origin_xyz=np.asarray(resized_images[0].GetOrigin(), dtype=np.float64),
+        direction_xyz=np.asarray(resized_images[0].GetDirection(), dtype=np.float64),
+        crop_index_xyz=np.asarray(crop_index, dtype=np.int64),
+        crop_size_xyz=np.asarray(crop_size, dtype=np.int64),
+        preprocessing_config_json=np.asarray(json.dumps(pre_cfg, sort_keys=True)),
+        array_axis_order=np.asarray("CZYX"),
         sequence_names=np.asarray([sequence for sequence, _ in sequence_columns]),
     )
     return str(output_path.resolve())

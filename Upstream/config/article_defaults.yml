@@ -59,35 +59,45 @@ survival_model:
   models: [3d_vit, 3d_resnet18]
   input_array_order: CZYX
   patch_size_xyz: [16, 16, 4]
-  embed_dim: 128
-  transformer_depth: 4
-  attention_heads: 4
+  embed_dim: 256
+  transformer_depth: 6
+  attention_heads: 8
   mlp_ratio: 4.0
   dropout: 0.1
-  stochastic_depth: 0.0
-  batch_size: 2
-  epochs: 100
+  survival_head_hidden_dim: 64
+  survival_head_dropout: 0.3
+  cnn_head_dropout: 0.3
+  # Forward microbatch size; the Cox loss uses the complete fitting risk set.
+  batch_size: 8
+  cox_risk_set: full_cohort
+  epochs: 200
   learning_rate: 0.0001
-  weight_decay: 0.00001
+  weight_decay: 0.0001
+  warmup_epochs: 10
+  learning_rate_schedule: linear_warmup_cosine
   validation_fraction: 0.2
-  early_stopping_patience: 15
+  validation_stratification: event_and_time_quartile
+  early_stopping_patience: 30
   gradient_clip_norm: 1.0
   cox_tie_method: breslow
   augmentation:
     enabled: true
-    flip_probability: 0.5
-    intensity_jitter_probability: 0.2
-    intensity_jitter_scale: 0.05
+    rotation_degrees_xyz: [10.0, 10.0, 10.0]
+    translation_voxels_xyz: [5.0, 5.0, 1.0]
+    spatial_scale_range: [0.9, 1.1]
+    intensity_scale_range: [0.9, 1.1]
+    intensity_shift_max: 0.1
+    noise_std_max: 0.05
+    left_right_flip: false
   score_output_name: risk_score
 
 attribution:
-  methods: [occlusion, deep_shap]
+  methods: [occlusion]
+  models: [3d_vit]
   occlusion_block_size_xyz: [16, 16, 4]
-  occlusion_stride_xyz: [16, 16, 4]
-  occlusion_fill_value: 0.0
-  shap_background_cases: 16
-  shap_batch_size: 1
-  save_channel_maps: true
+  occlusion_stride_xyz: [8, 8, 2]
+  occlusion_fill_strategy: training_channel_mean
+  visualization: absolute_magnitude
   save_case_maps: true
 
 bulk_ssgsea:

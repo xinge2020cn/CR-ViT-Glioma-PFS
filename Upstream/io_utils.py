@@ -44,10 +44,12 @@ def require_columns(frame: pd.DataFrame, columns: list[str], context: str) -> No
 
 
 def read_manifest(path: Path, config: dict[str, Any]) -> pd.DataFrame:
+    import numpy as np
     import pandas as pd
 
-    frame = pd.read_csv(path)
     data_cfg = config["data"]
+    # Preserve identifiers such as 003; these are labels, never measurements.
+    frame = pd.read_csv(path, dtype={data_cfg["patient_id_column"]: "string"})
     required = [
         data_cfg["patient_id_column"],
         data_cfg["subtype_column"],
@@ -60,14 +62,19 @@ def read_manifest(path: Path, config: dict[str, Any]) -> pd.DataFrame:
     ]
     require_columns(frame, required, "The input manifest")
     patient_col = data_cfg["patient_id_column"]
-    if frame[patient_col].isna().any() or frame[patient_col].duplicated().any():
+    if (frame[patient_col].isna().any()
+            or frame[patient_col].str.strip().eq("").any()
+            or frame[patient_col].duplicated().any()):
         raise ValueError("The manifest must contain one non-missing row per patient.")
     event_col = data_cfg["event_column"]
     time_col = data_cfg["time_column"]
     frame[time_col] = pd.to_numeric(frame[time_col], errors="raise")
-    frame[event_col] = pd.to_numeric(frame[event_col], errors="raise").astype(int)
-    if not frame[time_col].gt(0).all() or not frame[event_col].isin([0, 1]).all():
-        raise ValueError("Survival time must be positive and event must be binary 0/1.")
+    frame[event_col] = pd.to_numeric(frame[event_col], errors="raise")
+    if (not np.isfinite(frame[time_col]).all()
+            or not frame[time_col].gt(0).all()
+            or not frame[event_col].isin([0, 1]).all()):
+        raise ValueError("Survival time must be finite and positive and event must be exactly 0/1.")
+    frame[event_col] = frame[event_col].astype(int)
     return frame
 
 

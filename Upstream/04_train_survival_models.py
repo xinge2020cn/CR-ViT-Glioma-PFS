@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
+import math
 from pathlib import Path
-from typing import Iterable
 
 import numpy as np
 import pandas as pd
@@ -14,6 +15,34 @@ from torch import Tensor, nn
 from torch.utils.data import DataLoader, Dataset
 
 from io_utils import load_config, read_manifest, set_seed, write_json
+
+
+def augment_image(image: np.ndarray, aug: dict) -> np.ndarray:
+    """Apply one common 3D transform to all MRI channels; never reflect an axis."""
+    from scipy.ndimage import affine_transform
+    from scipy.spatial.transform import Rotation
+
+    angles = np.random.uniform(-1.0, 1.0, size=3) * np.asarray(aug["rotation_degrees_xyz"])
+    rotation_xyz = Rotation.from_euler("xyz", angles, degrees=True).as_matrix()
+    scale = float(np.random.uniform(*aug["spatial_scale_range"]))
+    forward_zyx = (rotation_xyz * scale)[::-1, ::-1]
+    inverse = np.linalg.inv(forward_zyx)
+    translation_zyx = (
+        np.random.uniform(-1.0, 1.0, size=3) * np.asarray(aug["translation_voxels_xyz"])
+    )[::-1]
+    center = (np.asarray(image.shape[1:], dtype=float) - 1.0) / 2.0
+    offset = center - inverse @ (center + translation_zyx)
+    transformed = np.stack([
+        affine_transform(channel, inverse, offset=offset, order=1, mode="constant", cval=0.0,
+                         prefilter=False)
+        for channel in image
+    ])
+    intensity_scale = np.random.uniform(*aug["intensity_scale_range"], size=(image.shape[0], 1, 1, 1))
+    shift = np.random.uniform(-aug["intensity_shift_max"], aug["intensity_shift_max"],
+                              size=(image.shape[0], 1, 1, 1))
+    std = np.random.uniform(0.0, aug["noise_std_max"], size=(image.shape[0], 1, 1, 1))
+    transformed = transformed * intensity_scale + shift + np.random.normal(size=image.shape) * std
+    return np.ascontiguousarray(transformed, dtype=np.float32)
 
 
 class NPZSurvivalDataset(Dataset):
@@ -33,15 +62,16 @@ class NPZSurvivalDataset(Dataset):
             image = np.asarray(bundle["image"], dtype=np.float32)
         if image.ndim != 4:
             raise ValueError("Each processed image must have shape CZYX.")
+        expected = (len(self.data_cfg["image_columns"]), *reversed(
+            self.config["mri_preprocessing"]["target_size_voxels_xyz"]))
+        if image.shape != expected or not np.isfinite(image).all():
+            raise ValueError(f"Image must be finite with shape {expected}; got {image.shape}.")
         if self.training and self.model_cfg["augmentation"]["enabled"]:
-            aug = self.model_cfg["augmentation"]
-            if np.random.random() < float(aug["flip_probability"]):
-                image = np.flip(image, axis=int(np.random.choice([1, 2, 3]))).copy()
-            if np.random.random() < float(aug["intensity_jitter_probability"]):
-                scale = float(aug["intensity_jitter_scale"])
-                image = image * np.float32(1.0 + np.random.uniform(-scale, scale))
+            image = augment_image(image, self.model_cfg["augmentation"])
         time = float(row[self.data_cfg["time_column"]])
         event = float(row[self.data_cfg["event_column"]])
+        if not np.isfinite(time) or time <= 0 or event not in (0.0, 1.0):
+            raise ValueError("Survival times must be finite and positive; events must be 0/1.")
         return (
             torch.from_numpy(image),
             torch.tensor(time, dtype=torch.float32),
@@ -87,7 +117,12 @@ class ViTCox3D(nn.Module):
         )
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=int(model_cfg["transformer_depth"]))
         self.norm = nn.LayerNorm(embed_dim)
-        self.cox_head = nn.Linear(embed_dim, 1)
+        self.cox_head = nn.Sequential(
+            nn.Linear(embed_dim, int(model_cfg["survival_head_hidden_dim"])),
+            nn.GELU(),
+            nn.Dropout(float(model_cfg["survival_head_dropout"])),
+            nn.Linear(int(model_cfg["survival_head_hidden_dim"]), 1),
+        )
         nn.init.trunc_normal_(self.position, std=0.02)
         nn.init.trunc_normal_(self.class_token, std=0.02)
 
@@ -140,6 +175,7 @@ class ResNet3D18Cox(nn.Module):
         self.layer3 = self._make_layer(128, 256, 2, 2)
         self.layer4 = self._make_layer(256, 512, 2, 2)
         self.pool = nn.AdaptiveAvgPool3d(1)
+        self.dropout = nn.Dropout(float(config["survival_model"]["cnn_head_dropout"]))
         self.cox_head = nn.Linear(512, 1)
 
     @staticmethod
@@ -154,7 +190,7 @@ class ResNet3D18Cox(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-        return self.cox_head(self.pool(x).flatten(1)).squeeze(-1)
+        return self.cox_head(self.dropout(self.pool(x).flatten(1))).squeeze(-1)
 
 
 def make_model(name: str, config: dict) -> nn.Module:
@@ -166,9 +202,16 @@ def make_model(name: str, config: dict) -> nn.Module:
 
 
 def cox_breslow_loss(risk: Tensor, time: Tensor, event: Tensor) -> Tensor:
+    """Mean negative Breslow partial log likelihood on one complete risk set."""
+    if risk.ndim != 1 or time.shape != risk.shape or event.shape != risk.shape:
+        raise ValueError("Risk, time, and event must be equally sized one-dimensional tensors.")
+    if not bool(torch.isfinite(risk).all() & torch.isfinite(time).all() & torch.isfinite(event).all()):
+        raise ValueError("Cox inputs must be finite.")
+    if not bool((time > 0).all()) or not bool(((event == 0) | (event == 1)).all()):
+        raise ValueError("Survival times must be positive and events binary.")
     event_mask = event > 0.5
     if not bool(event_mask.any()):
-        return risk.sum() * 0.0
+        raise ValueError("The complete Cox fitting/evaluation risk set has no observed events.")
     event_times = torch.unique(time[event_mask])
     terms = []
     for event_time in event_times:
@@ -181,24 +224,83 @@ def cox_breslow_loss(risk: Tensor, time: Tensor, event: Tensor) -> Tensor:
 
 def evaluate_loss(model: nn.Module, loader: DataLoader, device: torch.device) -> float:
     model.eval()
-    losses: list[float] = []
     with torch.no_grad():
-        for image, time, event, _ in loader:
-            risk = model(image.to(device))
-            losses.append(float(cox_breslow_loss(risk, time.to(device), event.to(device)).cpu()))
-    return float(np.mean(losses)) if losses else float("inf")
+        risk, time, event = collect_risk_set(model, loader, device)
+        return float(cox_breslow_loss(risk, time, event).cpu())
 
 
-def split_frame(frame: pd.DataFrame, fraction: float, seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-    if len(frame) < 10 or fraction <= 0:
-        return frame.copy(), frame.iloc[0:0].copy()
-    rng = np.random.default_rng(seed)
-    indices = np.arange(len(frame))
-    rng.shuffle(indices)
-    n_validation = max(1, int(round(len(frame) * fraction)))
-    validation_indices = set(indices[:n_validation].tolist())
-    train_mask = [index not in validation_indices for index in range(len(frame))]
-    return frame.loc[train_mask].copy(), frame.loc[[not value for value in train_mask]].copy()
+def collect_risk_set(model: nn.Module, loader: DataLoader, device: torch.device):
+    """Chunk only the forward pass; never truncate a patient's Cox risk set.
+
+    During fitting, all chunk graphs remain alive until the cohort loss is
+    differentiated. This is mathematically exact but memory demanding. Decreasing
+    batch_size does not remove the memory needed for all retained graphs.
+    """
+    risks, times, events = [], [], []
+    for image, time, event, _ in loader:
+        risks.append(model(image.to(device)))
+        times.append(time.to(device))
+        events.append(event.to(device))
+    if not risks:
+        raise ValueError("Cannot evaluate an empty Cox risk set.")
+    return torch.cat(risks), torch.cat(times), torch.cat(events)
+
+
+def split_frame(frame: pd.DataFrame, fraction: float, seed: int,
+                time_col: str = "pfs_time_months", event_col: str = "event"):
+    """Patient-level event-by-time-quartile stratification; fail on sparse strata."""
+    from sklearn.model_selection import train_test_split
+
+    if len(frame) < 10 or not 0.0 < fraction < 1.0:
+        raise ValueError("A stratified tuning split requires at least 10 patients and fraction in (0,1).")
+    times = pd.to_numeric(frame[time_col], errors="raise")
+    events = pd.to_numeric(frame[event_col], errors="raise")
+    if not np.isfinite(times).all() or not times.gt(0).all() or not events.isin([0, 1]).all():
+        raise ValueError("Invalid PFS times/events in the training cohort.")
+    quartiles = pd.qcut(times, q=4, labels=False, duplicates="drop")
+    if quartiles.isna().any():
+        raise ValueError("Survival-time quartiles cannot be formed from the supplied training times.")
+    strata = events.astype(int).astype(str) + "_q" + quartiles.astype(int).astype(str)
+    counts = strata.value_counts()
+    if counts.min() < 2:
+        raise ValueError("Event-by-time-quartile stratum has fewer than two patients; "
+                         "do not silently substitute an unstratified split.")
+    train_idx, tuning_idx = train_test_split(
+        np.arange(len(frame)), test_size=fraction, random_state=seed, stratify=strata)
+    result = frame.iloc[train_idx].copy(), frame.iloc[tuning_idx].copy()
+    if any(not part[event_col].eq(1).any() for part in result):
+        raise ValueError("Optimization and tuning subsets must each contain PFS events.")
+    return result
+
+
+def learning_rate_at_epoch(model_cfg: dict, epoch: int) -> float:
+    warmup = int(model_cfg["warmup_epochs"])
+    maximum = int(model_cfg["epochs"])
+    base = float(model_cfg["learning_rate"])
+    if epoch <= warmup:
+        return base * epoch / max(1, warmup)
+    progress = min(1.0, (epoch - warmup) / max(1, maximum - warmup))
+    return base * 0.5 * (1.0 + math.cos(math.pi * progress))
+
+
+def fit_cohort_epoch(model, loader, optimizer, config, device, epoch):
+    model_cfg = config["survival_model"]
+    if model_cfg["cox_risk_set"] != "full_cohort":
+        raise ValueError("Only complete-cohort Cox risk sets are supported.")
+    lr = learning_rate_at_epoch(model_cfg, epoch)
+    for group in optimizer.param_groups:
+        group["lr"] = lr
+    model.train()
+    optimizer.zero_grad(set_to_none=True)
+    risk, time, event = collect_risk_set(model, loader, device)
+    loss = cox_breslow_loss(risk, time, event)
+    if not bool(torch.isfinite(loss)):
+        raise FloatingPointError("Nonfinite full-risk-set training loss.")
+    loss.backward()
+    torch.nn.utils.clip_grad_norm_(model.parameters(), float(model_cfg["gradient_clip_norm"]),
+                                   error_if_nonfinite=True)
+    optimizer.step()
+    return float(loss.detach().cpu()), lr
 
 
 def train_one_model(model: nn.Module, train_frame: pd.DataFrame, validation_frame: pd.DataFrame, config: dict, device: torch.device):
@@ -221,7 +323,7 @@ def train_one_model(model: nn.Module, train_frame: pd.DataFrame, validation_fram
         weight_decay=float(model_cfg["weight_decay"]),
     )
     model.to(device)
-    best_state = copy.deepcopy(model.state_dict())
+    best_state = None
     best_loss = float("inf")
     best_epoch = 1
     stale = 0
@@ -229,19 +331,12 @@ def train_one_model(model: nn.Module, train_frame: pd.DataFrame, validation_fram
     epochs = int(model_cfg["epochs"])
     patience = int(model_cfg["early_stopping_patience"])
     for epoch in range(1, epochs + 1):
-        model.train()
-        batch_losses = []
-        for image, time, event, _ in train_loader:
-            optimizer.zero_grad(set_to_none=True)
-            risk = model(image.to(device))
-            loss = cox_breslow_loss(risk, time.to(device), event.to(device))
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), float(model_cfg["gradient_clip_norm"]))
-            optimizer.step()
-            batch_losses.append(float(loss.detach().cpu()))
-        train_loss = float(np.mean(batch_losses)) if batch_losses else float("inf")
-        validation_loss = evaluate_loss(model, validation_loader, device) if len(validation_frame) else train_loss
-        history.append({"epoch": epoch, "train_loss": train_loss, "validation_loss": validation_loss})
+        train_loss, lr = fit_cohort_epoch(model, train_loader, optimizer, config, device, epoch)
+        validation_loss = evaluate_loss(model, validation_loader, device)
+        if not np.isfinite(validation_loss):
+            raise FloatingPointError("Nonfinite tuning loss; no checkpoint will be silently accepted.")
+        history.append({"epoch": epoch, "train_loss": train_loss,
+                        "validation_loss": validation_loss, "learning_rate": lr})
         if validation_loss < best_loss - 1e-6:
             best_loss = validation_loss
             best_state = copy.deepcopy(model.state_dict())
@@ -251,6 +346,8 @@ def train_one_model(model: nn.Module, train_frame: pd.DataFrame, validation_fram
             stale += 1
         if stale >= patience:
             break
+    if best_state is None:
+        raise RuntimeError("No valid tuning checkpoint was selected.")
     model.load_state_dict(best_state)
     return model, history, best_epoch
 
@@ -271,17 +368,8 @@ def train_full_model(model: nn.Module, frame: pd.DataFrame, config: dict, device
     model.to(device)
     history = []
     for epoch in range(1, max(1, int(epochs)) + 1):
-        model.train()
-        batch_losses = []
-        for image, time, event, _ in loader:
-            optimizer.zero_grad(set_to_none=True)
-            risk = model(image.to(device))
-            loss = cox_breslow_loss(risk, time.to(device), event.to(device))
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), float(model_cfg["gradient_clip_norm"]))
-            optimizer.step()
-            batch_losses.append(float(loss.detach().cpu()))
-        history.append({"epoch": epoch, "train_loss": float(np.mean(batch_losses)) if batch_losses else float("inf")})
+        loss, lr = fit_cohort_epoch(model, loader, optimizer, config, device, epoch)
+        history.append({"epoch": epoch, "train_loss": loss, "learning_rate": lr})
     return model, history
 
 
@@ -292,7 +380,10 @@ def predict(model: nn.Module, frame: pd.DataFrame, config: dict, device: torch.d
     with torch.no_grad():
         for image, _, _, _ in loader:
             values.append(float(model(image.to(device)).cpu().item()))
-    return np.asarray(values, dtype=float)
+    scores = np.asarray(values, dtype=float)
+    if not np.isfinite(scores).all():
+        raise FloatingPointError("Frozen-model predictions contain nonfinite risk scores.")
+    return scores
 
 
 def main() -> int:
@@ -324,6 +415,23 @@ def main() -> int:
     training_all = frame[frame[cohort_col].astype(str).str.lower() == training_value].copy()
     if training_all.empty:
         raise ValueError("No training-cohort rows were found in the manifest.")
+    # Precompute partitions once so comparator architectures see identical patients.
+    # A stable subtype-derived seed cannot change when training histories change.
+    partition_rows = []
+    partitions = {}
+    for subtype in sorted(training_all[subtype_col].astype(str).unique()):
+        subtype_training = training_all[training_all[subtype_col].astype(str) == subtype].copy()
+        subtype_seed = (int(config["project"]["random_seed"]) +
+                        int(hashlib.sha256(subtype.encode("utf-8")).hexdigest()[:8], 16)) % (2**32)
+        train_frame, validation_frame = split_frame(
+            subtype_training, float(config["survival_model"]["validation_fraction"]), subtype_seed,
+            config["data"]["time_column"], config["data"]["event_column"])
+        partitions[subtype] = (train_frame, validation_frame, subtype_seed)
+        for part_name, part in (("optimization", train_frame), ("tuning", validation_frame)):
+            for patient_id in part[patient_col]:
+                partition_rows.append({"patient_id": patient_id, "subtype": subtype,
+                                       "partition": part_name, "seed": subtype_seed})
+    pd.DataFrame(partition_rows).to_csv(output_dir / "model_development_partitions.csv", index=False)
     history_rows = []
     for model_name in config["survival_model"]["models"]:
         all_scores = []
@@ -332,15 +440,13 @@ def main() -> int:
             subtype_all = frame[frame[subtype_col].astype(str) == subtype].copy()
             if subtype_training.empty or subtype_all.empty:
                 continue
-            train_frame, validation_frame = split_frame(
-                subtype_training,
-                float(config["survival_model"]["validation_fraction"]),
-                int(config["project"]["random_seed"]) + len(history_rows),
-            )
+            train_frame, validation_frame, subtype_seed = partitions[subtype]
+            set_seed(subtype_seed)
             model = make_model(model_name, config)
             _, history, best_epoch = train_one_model(model, train_frame, validation_frame, config, device)
             for row in history:
                 history_rows.append({"model": model_name, "subtype": subtype, "phase": "internal_validation", **row})
+            set_seed(subtype_seed)
             model = make_model(model_name, config)
             model, final_history = train_full_model(model, subtype_training, config, device, best_epoch)
             for row in final_history:
@@ -358,6 +464,9 @@ def main() -> int:
                     "state_dict": model.state_dict(),
                     "config": config,
                     "device": str(device),
+                    "architecture_version": "manuscript_20260908_occlusion_only",
+                    "selected_epoch": best_epoch,
+                    "cox_risk_set": "full_cohort",
                 },
                 checkpoint,
             )

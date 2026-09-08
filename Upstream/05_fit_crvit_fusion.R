@@ -1,6 +1,14 @@
 #!/usr/bin/env Rscript
 
-# Fit training-only subtype-specific LASSO-Cox fusion scores.
+# Retired implementation retained only for source-history inspection.
+# It jointly selected CNN, ViT and clinical predictors at lambda.1se and does
+# not implement the current manuscript's two-stage CR-ViT specification.
+stop(paste(
+  "This legacy fusion entry point has been retired.",
+  "Do not use it to generate current manuscript scores.",
+  "See CODE_COVERAGE.md for the unresolved fusion audit; no existing scores",
+  "are changed by the occlusion-only revision."
+))
 
 args <- commandArgs(trailingOnly = TRUE)
 get_arg <- function(name, default = NULL) {

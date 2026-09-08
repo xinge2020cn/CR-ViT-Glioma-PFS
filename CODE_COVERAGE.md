@@ -1,6 +1,6 @@
 # Article Workflow Code Coverage
 
-This file summarizes the article workflow stages represented by executable code in this code-only package.
+This file summarizes code coverage and the remaining differences found during the 2026-09-08 manuscript audit. "Executable" alone does not establish that the implementation reproduces the current manuscript or the existing results. No study-model training or clinical-results recomputation was performed in this revision.
 
 | Article workflow stage | Package implementation | Coverage status |
 | --- | --- | --- |
@@ -14,9 +14,28 @@ This file summarizes the article workflow stages represented by executable code 
 | Two-reader agreement | `Code/08_build_reader_agreement.py` | Executable from external reader ratings |
 | MRI registration, resampling, bias correction, skull stripping, and intensity normalization | `Upstream/01_preprocess_mri.py` | Executable from a patient-level MRI manifest |
 | nnU-Net dataset preparation and full-resolution training | `Upstream/02_prepare_nnunet_dataset.py`, `Upstream/03_train_nnunet.py` | Executable with nnU-Net and segmentation inputs |
-| 3D-CNN and 3D-ViT architecture training, frozen-model inference, and attribution maps | `Upstream/04_train_survival_models.py`, `Upstream/06_generate_attributions.py` | Executable from processed MRI arrays |
-| Clinicoradiologic LASSO-Cox fusion | `Upstream/05_fit_crvit_fusion.R` | Executable from model predictions and clinical data |
+| 3D-CNN and 3D-ViT training | `Upstream/04_train_survival_models.py` | Architecture/defaults and risk-set handling revised against the supplement; generated-input tests only, no study training/checkpoint validation |
+| Fixed-ViT occlusion sensitivity | `Upstream/06_generate_attributions.py` | Occlusion-only implementation; matching checkpoints and processed inputs required; no study maps regenerated |
+| Independent PNG attribution panels and numeric color bar | `Upstream/10_render_occlusion_panels.py` | Reads saved occlusion arrays, verifies core-based slice and geometry, shares a numeric color scale within one checkpoint; no study panels regenerated |
+| Legacy upstream fusion | `Upstream/05_fit_crvit_fusion.R` | Retired and fails explicitly; former formula and lambda choice do not match the current supplement |
 | Bulk transcriptomic ssGSEA | `Upstream/07_run_bulk_ssgsea.py` | Executable from expression, metadata, and GMT files |
 | Single-cell QC, clustering, neural-lineage state scoring, CNV, and ligand-receptor scoring | `Upstream/08_run_single_cell_analysis.py` | Executable from an h5ad object and supplied marker/pair files |
 
 All effective settings for the upstream workflow are kept in `Upstream/config/article_defaults.yml`.
+
+## Changes checked against the current methods
+
+- Removed the former DeepSHAP runtime dependency and attribution branch. Occlusion uses joint four-channel replacement, subtype-training channel means, overlapping-window averaging, and a separate absolute-value display array.
+- Separated the unexpanded tumor core from the expanded crop mask and retained resized-grid geometry and preprocessing metadata.
+- Aligned ViT embedding/depth/heads and survival bottleneck, CNN head dropout, augmentation, optimization defaults and shared patient partitioning with the current supplement. Train/tune Cox computations now use full risk sets instead of averaging unrelated microbatch losses. This changes a future training implementation; it does not retroactively validate existing scores.
+- Manifest checks reject nonbinary events before integer conversion and reject nonfinite survival times.
+
+## Open items: do not claim complete manuscript reproduction
+
+1. **Combined-model formula:** the supplement describes clinicoradiologic linear predictor plus standardized ViT score as two Cox inputs. `Code/01_run_primary_analysis.R` instead refits the selected individual clinical/MRI terms together with ViT. Those are not generally equivalent. This revision does not change the existing clinical model, scores, figures or survival results. Reconcile the intended formula and rerun the affected analyses in a separate, traceable modeling revision.
+2. **Cross-fitting scope:** outer folds in the downstream code operate on supplied CNN/ViT scores; this cannot by itself establish out-of-fold neural-network training. Check the provenance of each supplied score and the training-derived scaling before describing end-to-end cross-fitted predictions.
+3. **Biological methods:** the generic Python single-cell module does not reproduce the supplement's Seurat/fastCNV/CytoTRACE/edgeR workflow. A generic marker score or optional CNV wrapper is not evidence that those named analyses were executed. Biological results are untouched; their exact production pipeline still needs to be supplied and checked.
+4. **Segmentation and MRI geometry:** supplied masks must genuinely represent the manuscript's tumor core, be in the declared reference space and have their original generation/reader provenance. An external brain mask is consumed; this package does not independently prove the stated skull-stripping or segmentation evaluation occurred. The nnU-Net wrapper currently uses fold `all`; it does not implement the supplement's five-fold out-of-fold segmentation and locked ensemble evaluation. Dataset preparation also does not enforce consumption of the registered/normalized four-sequence outputs. Those steps need an explicit, verified integration before reporting that the full S1 procedure was reproduced.
+5. **Study artifacts and runtime:** the repository contains no study checkpoint, MRI, training logs or complete governed-data run. Reported hardware, dependency versions, endpoint metrics, segmentation metrics, agreement estimates and attribution maps have not been independently reproduced here. Tests use generated arrays and toy networks only.
+6. **Unchanged documents:** old figure captions can still contain removed attribution-method names. Replacement figure legends are delivered separately; no Word document is edited by this code revision.
+7. **Predictor scales:** the downstream clinical model includes log-transformed tumor volume. This must be reconciled with the supplement's literal description of refitting on original predictor scales; do not interpret a coefficient for log-volume as the effect of one original volume unit.
