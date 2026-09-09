@@ -4,13 +4,15 @@ This repository contains R and Python analysis code for the article's imaging, s
 
 This is a code-only release. Patient-level tables, MRI volumes, masks, expression matrices, model checkpoints, generated results, quality-assurance reports, and figure exports are not included. Provide governed inputs locally before running the workflow.
 
+The associated local imaging-analysis example uses simulated patient data, segmentation metrics, and reader ratings for methodological demonstration. Its results are not clinical observations. This repository does not establish clinical validity or support patient-care decisions.
+
 ## Scope
 
 The workflow covers the following analysis stages:
 
 1. Input validation and cohort integrity checks.
 2. Training-only LASSO-Cox selection of conventional clinical and MRI predictors.
-3. Cox refitting and evaluation of supplied 3D-CNN and 3D-ViT scores. The fusion implementation has outstanding manuscript-alignment issues described in `CODE_COVERAGE.md`.
+3. Unpenalized Cox refitting of LASSO-selected individual clinical/MRI predictors, with the standardized ViT score entered jointly for CR-ViT. Supplied CNN and ViT scores are evaluated separately.
 4. Apparent training and frozen validation performance evaluation.
 5. Harrell C-index, time-dependent AUC, Brier score, integrated metrics, calibration, decision-curve analysis, proportional-hazards checks, paired bootstrap comparisons, and Kaplan-Meier risk-group analyses.
 6. Segmentation-performance summaries and two-reader agreement analysis from supplied patient-level records.
@@ -91,7 +93,9 @@ Rscript .\run_all.R --bootstrap=100 --workers=2
 
 The default analysis uses 1,000 patient-level bootstrap resamples. Figure jitter uses fixed seeds only for visual reproducibility. The workflow consumes externally supplied patient-level outcomes and model scores; it does not create them.
 
-Before interpreting a run as a manuscript reproduction, resolve the open alignment items in `CODE_COVERAGE.md`. In particular, the retired upstream fusion entry point must not be used, and the downstream combined-model formula must be reconciled with the current supplement. The upstream attribution workflow can be run separately on verified model checkpoints without changing the existing scores.
+The default selection/performance seed is 20260901. Selection uses 10-fold partial-likelihood deviance and lambda.min, without a predictor-count cap or selection bootstrap. Input checks reject impossible enhancing/necrotic combinations and stale subset or reader-consensus records. The frozen clinical/MRI master table must be the source of all workbook exports.
+
+Before interpreting a run as a manuscript reproduction, resolve the remaining upstream and biological verification items in `CODE_COVERAGE.md`. The retired upstream fusion entry point must not be used. Occlusion can be run separately on verified checkpoints without changing the supplied survival scores.
 
 ## Required software
 

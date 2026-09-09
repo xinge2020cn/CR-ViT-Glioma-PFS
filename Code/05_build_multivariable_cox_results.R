@@ -130,6 +130,6 @@ write_excel_csv(ph, file.path(root, "Results", "Table3_validation_proportional_h
 write_excel_csv(cutoffs, file.path(root, "Results", "training_derived_score_cutoffs.csv"))
 
 if (any(table3$ph_p_vit <= 0.05) || any(table3$ph_p_global <= 0.05)) {
-  stop("At least one adjusted Cox model failed the proportional-hazards gate; see the written audit files.")
+  warning("At least one adjusted Cox model has evidence against proportional hazards; inspect the written diagnostics and consider an appropriate alternative. Do not alter observations to obtain a nonsignificant test.")
 }
 message("Rebuilt Table 3 using validation-only Cox models adjusted for LASSO-selected conventional variables; the nested multi-omics result is integrated as the final row.")

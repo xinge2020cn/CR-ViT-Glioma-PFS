@@ -7,6 +7,31 @@ import re
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
+
+ORDINAL_LEVELS = ["None/minimal (<=5%)", "Mild (>5-33%)", "Moderate (>33-67%)", "Extensive (>67%)"]
+
+
+def composition_checks(frame: pd.DataFrame) -> dict[str, bool]:
+    """Check disjoint enhancing/necrotic fractions with a shared core denominator."""
+    e = frame.enhancing_proportion.map(dict(zip(ORDINAL_LEVELS, range(4))))
+    n = frame.necrotic_proportion.map(dict(zip(ORDINAL_LEVELS, range(4))))
+    lower = {0: 0.0, 1: 0.05, 2: 0.33, 3: 0.67}
+    result = {"Known composition categories": bool(e.notna().all() and n.notna().all()),
+              "Joint composition categories are feasible": bool((e.map(lower) + n.map(lower) < 1).all())}
+    columns = ["enhancing_fraction_core", "necrotic_fraction_core", "other_fraction_core"]
+    if any(c in frame for c in columns):
+        result["Complete fraction triplet"] = all(c in frame for c in columns)
+        if not result["Complete fraction triplet"]: return result
+        values = frame[columns].apply(pd.to_numeric, errors="coerce").to_numpy()
+        result["Core fractions are finite and sum to one"] = bool(np.isfinite(values).all() and (values >= 0).all() and (values <= 1).all() and np.allclose(values.sum(axis=1), 1, atol=1e-8, rtol=0))
+        for col, cat in [(columns[0], e), (columns[1], n)]:
+            coded = np.searchsorted([0.05, 0.33, 0.67], frame[col], side="left")
+            result[f"Category matches {col}"] = bool((coded == cat).all())
+        for fraction, volume in zip(columns, ["enhancing_volume_cm3", "necrotic_volume_cm3", "other_core_volume_cm3"]):
+            if volume in frame:
+                result[f"Volume matches {fraction}"] = bool(np.allclose(frame[volume], frame[fraction] * frame.tumor_volume_cm3, atol=1e-7, rtol=1e-7))
+    return result
 
 
 MAIN_REQUIRED = {
@@ -139,6 +164,17 @@ def main() -> int:
         record("PFS times are positive", bool(positive_time), "pfs_time_months > 0")
         no_missing = not main_data[sorted(MAIN_REQUIRED)].isna().any().any()
         record("Required main-table fields are complete", no_missing, "no missing values in required columns")
+        for name, passed in composition_checks(main_data).items():
+            record(name, passed, "Enhancing and necrotic tissue share the tumor-core denominator")
+
+        if subset_ids.issubset(main_ids):
+            shared = sorted(set(subset_data.columns).intersection(main_data.columns) - {"patient_id", "cohort", "cohort_label", "cohort_period", "omics_type"})
+            master = main_data.set_index("patient_id").loc[subset_data.patient_id]
+            for column in shared:
+                left, right = master[column].reset_index(drop=True), subset_data[column].reset_index(drop=True)
+                equal = np.allclose(left, right, atol=1e-10, rtol=1e-10, equal_nan=True) if pd.api.types.is_numeric_dtype(left) else left.fillna("").astype(str).equals(right.fillna("").astype(str))
+                record(f"Subset agrees with master: {column}", bool(equal), "patient-ID matched")
+            record("Subset is from Institution I temporal GBM", bool(master.institution.eq("Institution I").all() and master.cohort.eq("Temporal validation cohort").all() and master.subtype.eq("GBM").all()), "Nested subset, not an independent validation cohort")
 
     if SUBSET_REQUIRED.issubset(subset_data.columns):
         subset_is_gbm = subset_data["subtype"].astype(str).eq("GBM").all()
@@ -156,10 +192,22 @@ def main() -> int:
     if RATING_REQUIRED.issubset(ratings.columns):
         duplicate_rating_keys = ratings.duplicated(subset=["patient_id", "feature"]).any()
         record("Reader-rating keys are unique", not duplicate_rating_keys, "one row per patient and feature")
+        if "consensus_label" in ratings and not main_data.patient_id.duplicated().any():
+            master=main_data.set_index("patient_id")
+            for feature, group in ratings.groupby("feature"):
+                valid=feature in master and set(group.patient_id).issubset(master.index)
+                equal=valid and master.loc[group.patient_id,feature].reset_index(drop=True).astype(str).equals(group.consensus_label.reset_index(drop=True).astype(str))
+                record(f"Reader consensus matches master: {feature}", bool(equal), "patient-ID matched")
+        if not duplicate_rating_keys:
+            for reader in ["reader_1_rating", "reader_2_rating"]:
+                pair=ratings.pivot(index="patient_id",columns="feature",values=reader)
+                if {"enhancing_proportion", "necrotic_proportion"}.issubset(pair):
+                    for name, passed in composition_checks(pair).items(): record(f"{reader}: {name}", passed, "nonoverlapping compartments")
 
     han_pattern = re.compile(r"[\u3400-\u9fff]")
-    code_files = list((root / "Code").rglob("*.py")) + list((root / "Code").rglob("*.R"))
-    code_with_han = [str(path.relative_to(root)) for path in code_files if han_pattern.search(path.read_text(encoding="utf-8"))]
+    code_dir = Path(__file__).resolve().parent
+    code_files = list(code_dir.rglob("*.py")) + list(code_dir.rglob("*.R"))
+    code_with_han = [str(path.relative_to(code_dir)) for path in code_files if han_pattern.search(path.read_text(encoding="utf-8"))]
     record("Analysis code contains no Han characters", not code_with_han, ", ".join(code_with_han) or "none")
 
     output = pd.DataFrame(checks)
