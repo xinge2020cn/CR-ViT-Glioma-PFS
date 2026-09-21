@@ -1,0 +1,9 @@
+Seurat (>= 5.0)
+SeuratObject (>= 5.0)
+Matrix
+yaml
+edgeR
+statmod
+fastCNV (1.1.9)
+CytoTRACE (original CytoTRACE, not CytoTRACE2)
+CellChat
